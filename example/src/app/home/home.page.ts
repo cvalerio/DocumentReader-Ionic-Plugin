@@ -4,6 +4,7 @@ import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx'
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx'
 import { Platform } from '@ionic/angular'
 import { DocumentReader, DocumentReaderScenario, Enum, DocumentReaderCompletion, DocumentReaderResults, DocumentReaderNotification } from '@regulaforensics/ionic-native-document-reader/ngx';
+import { DecimalPipe } from '@angular/common'
 
 var doRfid: boolean = false
 var isReadingRfidCustomUi: boolean = false
@@ -58,17 +59,22 @@ export class HomePage {
     app.status.nativeElement.style.backgroundColor = "grey"
     app.platform.ready().then(() => {
       readFile("www/assets", "regula.license", (license) => {
-        DocumentReader.prepareDatabase("Full").subscribe(r => {
-          if (r != "database prepared")
-            app.status.nativeElement.innerHTML = "Downloading database: " + r + "%"
-          else {
-            app.status.nativeElement.innerHTML = "Loading......"
+        // DocumentReader.prepareDatabase("Full").subscribe(r => {
+        //   if (r != "database prepared")
+        //     app.status.nativeElement.innerHTML = "Downloading database: " + r + "%"
+        //   else {
+        //     app.status.nativeElement.innerHTML = "Loading......"
+        //     DocumentReader.initializeReader({
+        //       license: license,
+        //       delayedNNLoad: true
+        //     }).then(m => onInitialized()).catch(error1)
+        //   }
+        // })
+
             DocumentReader.initializeReader({
               license: license,
               delayedNNLoad: true
             }).then(m => onInitialized()).catch(error1)
-          }
-        })
       })
     })
 
@@ -235,6 +241,8 @@ export class HomePage {
           postInitialize(JSON.parse(sc), canRfid)))
       DocumentReader.setRfidDelegate(Enum.RFIDDelegate.NO_PA)
       // addCertificates()
+
+      DocumentReader.getDatabaseVersion().then(version => console.log("database version " + version)).catch(e => "Can't get database version: " + e)
     }
 
     function postInitialize(scenarios: Array<any>, canRfid: boolean) {
